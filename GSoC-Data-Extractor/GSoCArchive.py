@@ -1,6 +1,14 @@
 #! /usr/bin/python3
 # All GSOC are GSoC!
 
+
+"""
+This program extracts previous-years GSoC data into json files. Then it adds
+contents of all these json files into one combined excel file. Remove the json
+files with "rm *.json" if it is not needed! Requires jsonExcelerate for
+making excel file.
+"""
+
 import re
 import json
 import requests
@@ -51,7 +59,7 @@ def runGSoCold():
         print("FILE: "+file_name)
 
 
-# NEW PART BELOW
+"""Below Part scraps GSoC 16/17"""
 
 
 def url_list(soup):
@@ -99,6 +107,7 @@ def runGSoC(file_name, year_url):
 
 
 """SCRIPT PART"""
+
 runGSoCold()
 runGSoC('gsoc16.json', URL_2016)
 runGSoC('gsoc17.json', URL_2017)
