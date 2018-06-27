@@ -5,6 +5,6 @@ Extract past years GSoC data about organisations and projects and see it in a ne
 ## Requirements:
  - bs4
  - requests
- - pandas
+ - openpyxl
 
 ## Usage:
