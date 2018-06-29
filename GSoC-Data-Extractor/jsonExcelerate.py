@@ -14,12 +14,12 @@ wb = Workbook()
 
 
 def populator(file_list, fields):
-    global wb, FIELDS
+    global wb
     for file_name in file_list:
         with open(file_name, 'r+') as working_file:
             jsonfl = json.load(working_file)
         sheet = wb.create_sheet(title=file_name[:-5])    # '.json'
-        filler(jsonfl, sheet, FIELDS)
+        filler(jsonfl, sheet, fields)
 
 
 def filler(jsonfl, sheet, fields):
