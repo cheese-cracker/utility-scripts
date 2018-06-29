@@ -30,7 +30,7 @@ def filler(jsonfl, sheet, fields):
         for colIn, header in enumerate(fields, start=1):
             try:
                 tag = organ[header]
-            except ValueError:
+            except KeyError:
                 tag = "-"
             sheet.cell(row=rowIn, column=colIn, value=str(tag))
 
