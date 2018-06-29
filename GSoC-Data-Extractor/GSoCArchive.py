@@ -14,7 +14,11 @@ import requests
 from jsonExcelerate import wb, populator
 from bs4 import BeautifulSoup
 
-FILE_LIST = ["gsoc"+str(x).zfill(2)+".json" for x in range(17, 8, -1)]
+styrs = [str(x).zfill(2) for x in range(17, 8, -1)]
+FILE_LIST = ["gsoc"+styr+".json" for styr in styrs]
+unmergedFIELDS = ['name', 'no_people', 'topic_tags', 'technology_tags']
+FIELDS = unmergedFIELDS + [head + styr for styr in styrs for head
+                           in unmergedFIELDS[1:]]
 session = requests.session()
 
 
@@ -37,16 +41,14 @@ def org_getter(url_list, json4fill):
         no_proj = len(soup.find_all(href=projhref))
         org_dict = {
             "name": org_name,
-            "no_people": len(no_proj),
+            "no_people": no_proj,
         }
         json4fill.append(org_dict)
 
 
-def runGSoCold():
-    for year in range(9, 16):
-        styr = str(year).zfill(2)
-        file_name = "gsoc"+styr+".json"
-        year_url = "https://www.google-melange.com/archive/gsoc/20"+styr
+def runGSoCold(file_list):
+    for yr, file_name in enumerate(file_list, start=9):
+        year_url = "https://www.google-melange.com/archive/gsoc/20" + str(yr).zfill(2)
         Soup = BeautifulSoup(session.get(year_url).text, "html.parser")
         result_set = []
         url_href_type = re.compile("/archive/gsoc/20../orgs/")
@@ -105,17 +107,17 @@ def runGSoC(file_name, year_url):
 
 
 """SCRIPT PART"""
-runGSoCold()
+runGSoCold(FILE_LIST[-1:1:-1])    # Reverse Order not inc 0,1 terms
 runGSoC('gsoc16.json', URL_2016)
 runGSoC('gsoc17.json', URL_2017)
 
 # Transferred from jsonExcelerate
 # Remove original active sheet and save
 sheet0 = wb.active
-populator(FILE_LIST)
+populator(FILE_LIST, FIELDS)
 wb.remove(sheet0)
 wb.save('GSoC_Combined.xlsx')
 
 # Remove JSON files! Comment this part if you want json files!
-for jsofile in FILE_LIST:
-    os.remove(jsofile)
+# for jsofile in FILE_LIST:
+#     os.remove(jsofile)

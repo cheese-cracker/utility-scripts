@@ -10,15 +10,14 @@ from openpyxl import Workbook
 
 wb = Workbook()
 
-# FIELDS has been integrated into populator! and FILE_LIST in GSoCArchive!
+# FIELDS and FILE_LIST in GSoCArchive!
 
 
-def populator(file_list):
+def populator(file_list, fields):
     global wb, FIELDS
     for file_name in file_list:
         with open(file_name, 'r+') as working_file:
             jsonfl = json.load(working_file)
-        FIELDS = sorted(jsonfl[0].keys())   # Since name is alphabetically 1st
         sheet = wb.create_sheet(title=file_name[:-5])    # '.json'
         filler(jsonfl, sheet, FIELDS)
 
