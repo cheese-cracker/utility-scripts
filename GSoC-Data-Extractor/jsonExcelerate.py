@@ -2,7 +2,7 @@
 Assumes json file of js-array-object with dict like [{},{}]
 All elements should atleast contain the same keys as the 0th!
 Fields or Keys of the dictionary should be provided in an array
-Title and fields can be changed for reusing functions!
+Fields and save can be changed for reusing functions!
 """
 
 import json
@@ -10,7 +10,7 @@ from openpyxl import Workbook
 
 wb = Workbook()
 
-# FIELDS has been integrated into populator!
+# FIELDS has been integrated into populator! and FILE_LIST in GSoCArchive!
 
 
 def populator(file_list):
@@ -29,5 +29,11 @@ def filler(jsonfl, sheet, fields):
         sheet.cell(row=1, column=colIn, value=header)
     for rowIn, organ in enumerate(jsonfl, start=2):
         for colIn, header in enumerate(fields, start=1):
-            tag = organ[header]
+            try:
+                tag = organ[header]
+            except ValueError:
+                tag = "-"
             sheet.cell(row=rowIn, column=colIn, value=str(tag))
+
+
+# Save part has been moved to GSoCArchive

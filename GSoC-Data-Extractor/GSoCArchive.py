@@ -11,10 +11,10 @@ import os
 import re
 import json
 import requests
-from jsonExcelerate import wb, populator, filler
+from jsonExcelerate import wb, populator
 from bs4 import BeautifulSoup
 
-FILE_LIST = ["gsoc"+str(x).zfill(2)+".json" for x in range(9, 18)]
+FILE_LIST = ["gsoc"+str(x).zfill(2)+".json" for x in range(17, 8, -1)]
 session = requests.session()
 
 
@@ -34,11 +34,10 @@ def org_getter(url_list, json4fill):
         org_page = session.get(org_page_url)
         soup = BeautifulSoup(org_page.text, "html.parser")
         projhref = re.compile(item.get('href')+"/projects")
-        projects = [proj.text for proj in soup.find_all(href=projhref)]
+        no_proj = len(soup.find_all(href=projhref))
         org_dict = {
             "name": org_name,
-            "no_people": len(projects),
-            "projects": projects,
+            "no_people": len(no_proj),
         }
         json4fill.append(org_dict)
 
@@ -77,11 +76,11 @@ def populate(soup, urls, result_set):
         topic_tags = soup.find_all(
             'li',
             'organization__tag organization__tag--topic')
-        topic_tags = [x.contents for x in topic_tags]
+        topic_tags = [str(*x.contents) for x in topic_tags]
         tech_tags = soup.find_all(
             'li',
             'organization__tag organization__tag--technology')
-        tech_tags = [x.contents for x in tech_tags]
+        tech_tags = [str(*x.contents) for x in tech_tags]
         mhary_dicty = {
             'name': org_title,
             'no_people': no_people,
@@ -117,6 +116,6 @@ populator(FILE_LIST)
 wb.remove(sheet0)
 wb.save('GSoC_Combined.xlsx')
 
-# Remove JSON files!
+# Remove JSON files! Comment this part if you want json files!
 for jsofile in FILE_LIST:
     os.remove(jsofile)
