@@ -4,6 +4,20 @@ Assumes json file of js-array-object with dict like [{},{}]
 import json
 
 
+def mergerIO(merger_func):
+    def wrapper(file_name, filenumzip):
+        # Open mainjson
+        with open(file_name, 'r') as working_file:
+                mainjsonfl = json.load(working_file)
+        # Run
+        merger_func(mainjsonfl, filenumzip)
+        # Close
+        with open(file_name, 'w') as final_file:
+            final_file.write(json.dumps(mainjsonfl))
+    return wrapper
+
+
+@mergerIO
 def jsonmerger(mainjson, filenumzip):
     for auxid, file_name in filenumzip:
         # Open
@@ -21,15 +35,5 @@ def jsonmerger(mainjson, filenumzip):
                 # mainorg.append(organ)
 
 
-# file_name and file_list
-styrs = [str(x).zfill(2) for x in range(17, 8, -1)]
-FILE_LIST = ["gsoc"+styr+".json" for styr in styrs]
-file_name = FILE_LIST[0]
-# Open mainjson
-with open(file_name, 'r') as working_file:
-        mainjsonfl = json.load(working_file)
-# Run
-jsonmerger(mainjsonfl, zip(styrs[1:], FILE_LIST[1:]))
-# Close
-with open(file_name, 'w') as final_file:
-    final_file.write(json.dumps(mainjsonfl))
+# file_name and file_list moved to GSoCArchive
+# Run File moved to GSoCArchive

@@ -11,14 +11,18 @@ import os
 import re
 import json
 import requests
+from merJSON import jsonmerger
 from jsonExcelerate import wb, populator
 from bs4 import BeautifulSoup
 
 styrs = [str(x).zfill(2) for x in range(17, 8, -1)]
 FILE_LIST = ["gsoc"+styr+".json" for styr in styrs]
+# Making all the headers
 unmergedFIELDS = ['name', 'no_people', 'topic_tags', 'technology_tags']
-FIELDS = unmergedFIELDS + [head + styr for styr in styrs for head
-                           in unmergedFIELDS[1:]]
+FIELDS = unmergedFIELDS
+FIELDS += [head + styr for styr in styrs[1] for head in unmergedFIELDS[1:]]
+FIELDS += [head + styr for styr in styrs[2:] for head in unmergedFIELDS[1]]
+# Session
 session = requests.session()
 
 
@@ -106,18 +110,22 @@ def runGSoC(file_name, year_url):
     print("FILE: "+file_name)
 
 
-"""SCRIPT PART"""
+"""Extractor PART"""
 runGSoCold(FILE_LIST[-1:1:-1])    # Reverse Order not inc 0,1 terms
 runGSoC('gsoc16.json', URL_2016)
 runGSoC('gsoc17.json', URL_2017)
 
-# Transferred from jsonExcelerate
-# Remove original active sheet and save
+"""Merger JSON Part"""
+# Merge Function for GSoC 17 (and GSoC 16 optional)
+jsonmerger(FILE_LIST[0], zip(styrs[1:], FILE_LIST[1:]))
+# jsonmerger(FILE_LIST[1], zip(styrs[2:], FILE_LIST[2:]))
+
+"""JSON Excelerate Part"""
 sheet0 = wb.active
 populator(FILE_LIST, FIELDS)
 wb.remove(sheet0)
 wb.save('GSoC_Combined.xlsx')
 
-# Remove JSON files! Comment this part if you want json files!
+"""Remove JSON Files since excel"""
 # for jsofile in FILE_LIST:
 #     os.remove(jsofile)
