@@ -11,10 +11,18 @@ import os
 import re
 import json
 import requests
-from jsonExcelerate import wb, populator, filler
+from merJSON import jsonmerger
+from jsonExcelerate import wb, populator
 from bs4 import BeautifulSoup
 
-FILE_LIST = ["gsoc"+str(x).zfill(2)+".json" for x in range(9, 18)]
+styrs = [str(x).zfill(2) for x in range(17, 8, -1)]
+FILE_LIST = ["gsoc"+styr+".json" for styr in styrs]
+# Making all the headers
+unmergedFIELDS = ['name', 'no_people', 'technology_tags', 'topic_tags']
+FIELDS = unmergedFIELDS
+FIELDS += [head + styr for styr in styrs[1:2] for head in unmergedFIELDS[1:]]
+FIELDS += [head + styr for styr in styrs[2:] for head in unmergedFIELDS[1:2]]
+# Session
 session = requests.session()
 
 
@@ -34,20 +42,17 @@ def org_getter(url_list, json4fill):
         org_page = session.get(org_page_url)
         soup = BeautifulSoup(org_page.text, "html.parser")
         projhref = re.compile(item.get('href')+"/projects")
-        projects = [proj.text for proj in soup.find_all(href=projhref)]
+        no_proj = len(soup.find_all(href=projhref))
         org_dict = {
             "name": org_name,
-            "no_people": len(projects),
-            "projects": projects,
+            "no_people": no_proj,
         }
         json4fill.append(org_dict)
 
 
-def runGSoCold():
-    for year in range(9, 16):
-        styr = str(year).zfill(2)
-        file_name = "gsoc"+styr+".json"
-        year_url = "https://www.google-melange.com/archive/gsoc/20"+styr
+def runGSoCold(file_list):
+    for yr, file_name in enumerate(file_list, start=9):
+        year_url = "https://www.google-melange.com/archive/gsoc/20" + str(yr).zfill(2)
         Soup = BeautifulSoup(session.get(year_url).text, "html.parser")
         result_set = []
         url_href_type = re.compile("/archive/gsoc/20../orgs/")
@@ -77,11 +82,11 @@ def populate(soup, urls, result_set):
         topic_tags = soup.find_all(
             'li',
             'organization__tag organization__tag--topic')
-        topic_tags = [x.contents for x in topic_tags]
+        topic_tags = [str(*x.contents) for x in topic_tags]
         tech_tags = soup.find_all(
             'li',
             'organization__tag organization__tag--technology')
-        tech_tags = [x.contents for x in tech_tags]
+        tech_tags = [str(*x.contents) for x in tech_tags]
         mhary_dicty = {
             'name': org_title,
             'no_people': no_people,
@@ -105,18 +110,22 @@ def runGSoC(file_name, year_url):
     print("FILE: "+file_name)
 
 
-"""SCRIPT PART"""
-runGSoCold()
+"""Extractor PART"""
+runGSoCold(FILE_LIST[-1:1:-1])    # Reverse Order not inc 0,1 terms
 runGSoC('gsoc16.json', URL_2016)
 runGSoC('gsoc17.json', URL_2017)
 
-# Transferred from jsonExcelerate
-# Remove original active sheet and save
+"""Merger JSON Part"""
+# Merge Function for GSoC 17 (and GSoC 16 optional)
+jsonmerger(FILE_LIST[0], zip(styrs[1:], FILE_LIST[1:]))
+# jsonmerger(FILE_LIST[1], zip(styrs[2:], FILE_LIST[2:]))
+
+"""JSON Excelerate Part"""
 sheet0 = wb.active
-populator(FILE_LIST)
+populator(FILE_LIST, FIELDS)
 wb.remove(sheet0)
 wb.save('GSoC_Combined.xlsx')
 
-# Remove JSON files!
+"""Remove JSON Files since excel"""
 for jsofile in FILE_LIST:
     os.remove(jsofile)
