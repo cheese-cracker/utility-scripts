@@ -11,6 +11,7 @@ from openpyxl import Workbook
 wb = Workbook()
 
 # FIELDS and FILE_LIST in GSoCArchive!
+# switchFIELDS = list(filter(lambda x: "16" not in x, FIELDS)) for GSoC16 bug!
 
 
 def populator(file_list, fields):
@@ -20,6 +21,7 @@ def populator(file_list, fields):
             jsonfl = json.load(working_file)
         sheet = wb.create_sheet(title=file_name[:-5])    # '.json'
         filler(jsonfl, sheet, fields)
+        print(fields)
 
 
 def filler(jsonfl, sheet, fields):

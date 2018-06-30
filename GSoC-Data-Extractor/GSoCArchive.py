@@ -18,10 +18,10 @@ from bs4 import BeautifulSoup
 styrs = [str(x).zfill(2) for x in range(17, 8, -1)]
 FILE_LIST = ["gsoc"+styr+".json" for styr in styrs]
 # Making all the headers
-unmergedFIELDS = ['name', 'no_people', 'topic_tags', 'technology_tags']
+unmergedFIELDS = ['name', 'no_people', 'technology_tags', 'topic_tags']
 FIELDS = unmergedFIELDS
-FIELDS += [head + styr for styr in styrs[1] for head in unmergedFIELDS[1:]]
-FIELDS += [head + styr for styr in styrs[2:] for head in unmergedFIELDS[1]]
+FIELDS += [head + styr for styr in styrs[1:2] for head in unmergedFIELDS[1:]]
+FIELDS += [head + styr for styr in styrs[2:] for head in unmergedFIELDS[1:2]]
 # Session
 session = requests.session()
 
@@ -127,5 +127,5 @@ wb.remove(sheet0)
 wb.save('GSoC_Combined.xlsx')
 
 """Remove JSON Files since excel"""
-# for jsofile in FILE_LIST:
-#     os.remove(jsofile)
+for jsofile in FILE_LIST:
+    os.remove(jsofile)
