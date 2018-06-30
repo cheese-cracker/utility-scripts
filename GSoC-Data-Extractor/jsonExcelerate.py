@@ -21,7 +21,6 @@ def populator(file_list, fields):
             jsonfl = json.load(working_file)
         sheet = wb.create_sheet(title=file_name[:-5])    # '.json'
         filler(jsonfl, sheet, fields)
-        print(fields)
 
 
 def filler(jsonfl, sheet, fields):
